@@ -1,0 +1,109 @@
+@startuml carsharing-usecase
+' ============================================================
+' ИС управления сервисом каршеринга — Диаграмма прецедентов
+' Задание №2, ответственный: Иващенко Е.О. (ПИ-б-о-241)
+' Источник: docs/01-vision-and-scope.md v1.1
+' ============================================================
+title ИС управления каршерингом — Диаграмма прецедентов (UseCase, №2)
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor white
+  BorderColor #1a1a1a
+  ArrowColor #1a1a1a
+  FontSize 13
+}
+skinparam actor {
+  BackgroundColor white
+  BorderColor #1a1a1a
+  ArrowColor #333333
+  FontSize 14
+}
+skinparam rectangle {
+  BackgroundColor #f7f9fc
+  BorderColor #1a1a1a
+}
+skinparam title {
+  FontSize 16
+  FontStyle bold
+}
+
+' ---------- Акторы ----------
+actor "Клиент" as A_Client
+actor "Оператор\nподдержки" as A_Operator
+actor "Техник" as A_Tech
+actor "Администратор" as A_Admin
+actor "Платёжный шлюз\n<<внешняя система>>" as E_Pay << system >>
+actor "Телематика авто\n<<внешняя система>>" as E_Tele << system >>
+actor "Сервис проверки\nдокументов\n<<внешняя система>>" as E_Docs << system >>
+
+' ---------- Граница системы ----------
+rectangle "ИС управления каршерингом\n(мобильное приложение)" {
+  usecase "UC-01\nРегистрация и верификация" as UC01
+  usecase "UC-02\nПоиск авто на карте\nи фильтрация" as UC02
+  usecase "UC-03\nБронирование авто\n(15 мин бесплатно)" as UC03
+  usecase "UC-04\nОтмена брони" as UC04
+  usecase "UC-05\nНачало аренды\n(открытие авто)" as UC05
+  usecase "UC-06\nЗавершение аренды\n(закрытие авто)" as UC06
+  usecase "UC-06a\nПроверка разрешённой\nзоны парковки" as UC06a
+  usecase "UC-06b\nРасчёт стоимости\nпоездки" as UC06b
+  usecase "UC-07\nПривязка карты\nи оплата поездки" as UC07
+  usecase "UC-08\nИстория поездок\nи платежей" as UC08
+  usecase "UC-09\nФиксация инцидента / ДТП" as UC09
+  usecase "UC-10\nОбращение в поддержку /\nоспаривание начисления" as UC10
+  usecase "UC-11\nОбработка обращений\nклиентов" as UC11
+  usecase "UC-12\nРазбор инцидентов\nи ДТП" as UC12
+  usecase "UC-13\nРазбор спорных\nначислений" as UC13
+  usecase "UC-14\nВыполнение заявок\nна обслуживание" as UC14
+  usecase "UC-15\nСмена статуса\nавтомобиля" as UC15
+  usecase "UC-16\nУправление автопарком" as UC16
+  usecase "UC-17\nУправление тарифами\nи правилами штрафов" as UC17
+  usecase "UC-18\nНазначение заявок\nтехникам" as UC18
+  usecase "UC-19\nОтчёты: загрузка,\nвыручка, инциденты" as UC19
+  usecase "UC-20\nУправление учётками\nсотрудников" as UC20
+}
+
+' ---------- Связи: Клиент ----------
+A_Client --> UC01
+A_Client --> UC02
+A_Client --> UC03
+A_Client --> UC04
+A_Client --> UC05
+A_Client --> UC06
+A_Client --> UC07
+A_Client --> UC08
+A_Client --> UC09
+A_Client --> UC10
+
+' ---------- Связи: сотрудники ----------
+A_Operator --> UC11
+A_Operator --> UC12
+A_Operator --> UC13
+A_Tech --> UC14
+A_Tech --> UC15
+A_Admin --> UC16
+A_Admin --> UC17
+A_Admin --> UC18
+A_Admin --> UC19
+A_Admin --> UC20
+
+' ---------- Внешние системы ----------
+UC01 --> E_Docs : проверка паспорта + ВУ
+UC02 --> E_Tele : геопозиция, топливо
+UC05 --> E_Tele : открыть замки
+UC06 --> E_Tele : закрыть замки
+UC07 --> E_Pay : списание / возврат
+UC14 --> E_Tele : статус после ТО
+
+' ---------- include / extend ----------
+UC03 ..> UC02 : <<include>>
+UC04 ..> UC03 : <<extend>>
+UC06 ..> UC06a : <<include>>
+UC06 ..> UC06b : <<include>>
+UC12 ..> UC11 : <<extend>>
+UC13 ..> UC11 : <<extend>>
+UC18 ..> UC14 : <<include>>
+
+footer Задание №2 • Иващенко Е.О. • Источник: docs/01-vision-and-scope.md v1.1
+@enduml
