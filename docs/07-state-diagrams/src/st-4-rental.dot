@@ -1,0 +1,24 @@
+digraph G {
+  rankdir=TB; nodesep=0.7; ranksep=0.85; pad=0.3; dpi=130; splines=true;
+  node [fontname="Liberation Sans", fontsize=13, shape=box, style="rounded,filled", fillcolor="#e8f0fb", color="#1f3a5f", penwidth=1.5, margin="0.25,0.14"];
+  edge [fontname="Liberation Sans", fontsize=11, color="#333333", arrowsize=0.9];
+  __start [shape=circle, label="", width=0.25, style=filled, fillcolor=black, color=black];
+  __end [shape=doublecircle, label="", width=0.22, style=filled, fillcolor=black, color=black];
+  "Начата";
+  "Активна";
+  "Ожидает оплаты";
+  "Задолженность";
+  "Завершена";
+  "Отменена";
+  __start -> "Начата" [label=" бронь переведена\nв аренду "];
+  "Начата" -> "Активна" [label=" осмотр выполнен\n[5 000 ₽ заблокированы] "];
+  "Начата" -> "Отменена" [label=" блокировка не выполнена\nили клиент отказался "];
+  "Активна" -> "Активна" [label=" завершение отклонено\n[автомобиль вне зоны] "];
+  "Активна" -> "Ожидает оплаты" [label=" клиент завершил аренду\n[автомобиль в зоне] "];
+  "Активна" -> "Ожидает оплаты" [label=" менеджер закрыл аренду\n[инцидент или авто вне зоны] "];
+  "Ожидает оплаты" -> "Завершена" [label=" оплата списана "];
+  "Ожидает оплаты" -> "Задолженность" [label=" списание не удалось "];
+  "Задолженность" -> "Завершена" [label=" долг погашен "];
+  "Завершена" -> __end;
+  "Отменена" -> __end;
+}

@@ -1,0 +1,17 @@
+digraph G {
+  rankdir=TB; nodesep=0.7; ranksep=0.85; pad=0.3; dpi=130; splines=true;
+  node [fontname="Liberation Sans", fontsize=13, shape=box, style="rounded,filled", fillcolor="#e8f0fb", color="#1f3a5f", penwidth=1.5, margin="0.25,0.14"];
+  edge [fontname="Liberation Sans", fontsize=11, color="#333333", arrowsize=0.9];
+  __start [shape=circle, label="", width=0.25, style=filled, fillcolor=black, color=black];
+  __end [shape=doublecircle, label="", width=0.22, style=filled, fillcolor=black, color=black];
+  "Зарегистрирован";
+  "Рассматривается";
+  "Доля клиента начислена";
+  "Закрыт";
+  __start -> "Зарегистрирован" [label=" клиент сообщил об инциденте "];
+  "Зарегистрирован" -> "Рассматривается" [label=" менеджер взял в работу "];
+  "Рассматривается" -> "Закрыт" [label=" решение принято\n[вина клиента не установлена] "];
+  "Рассматривается" -> "Доля клиента начислена" [label=" решение принято\n[вина клиента установлена] "];
+  "Доля клиента начислена" -> "Закрыт" [label=" начисление списано,\nданные переданы страховой "];
+  "Закрыт" -> __end;
+}
