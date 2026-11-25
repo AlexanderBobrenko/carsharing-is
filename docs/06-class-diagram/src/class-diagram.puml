@@ -1,0 +1,226 @@
+@startuml
+' Задание 6. Концептуальная диаграмма классов доменной модели.
+' Группы (пакеты) соответствуют группам доменных объектов из задания 4
+' и задают границы будущих компонентов архитектуры (лекция 4).
+skinparam dpi 130
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 11
+skinparam classAttributeIconSize 0
+skinparam classIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam nodesep 35
+skinparam ranksep 60
+skinparam ArrowColor #333333
+skinparam ArrowFontSize 10
+skinparam classBorderColor #1f3a5f
+skinparam classBackgroundColor #e8f0fb
+skinparam classBackgroundColor<<value object>> #f3ecff
+skinparam packageBorderColor #8aa6c4
+skinparam packageBackgroundColor #f8fbfe
+skinparam noteBackgroundColor #fff8c4
+skinparam noteBorderColor #8a6d1d
+hide circle
+hide empty members
+
+title Доменная модель сервиса каршеринга\n<size:11>Классы, атрибуты, операции и связи · задание 6</size>
+
+package "Клиенты и допуск" {
+  class Customer {
+    - fullName: String
+    - phone: String
+    - birthDate: Date
+    - drivingExperienceYears: Integer
+    - status: CustomerStatus
+    + submitDocuments()
+    + confirm()
+    + reject(reason)
+    + block()
+    + unblock()
+    + deleteAccount()
+    + canBook(): Boolean
+  }
+  class Contract {
+    - acceptedAt: DateTime
+    - version: String
+    + accept()
+  }
+  class Passport <<value object>> {
+    - series: String
+    - number: String
+  }
+  class DrivingLicense <<value object>> {
+    - number: String
+    - category: String
+    - expiresOn: Date
+  }
+}
+
+package "Парк и обслуживание" {
+  class Vehicle {
+    - plateNumber: String
+    - model: String
+    - fuelLevelPercent: Integer
+    - status: VehicleStatus
+    + reserve()
+    + release()
+    + sendToService()
+    + markAvailable()
+    + markUnavailable()
+    + decommission()
+  }
+  class ServiceZone {
+    - name: String
+    + contains(location): Boolean
+  }
+  class ServiceRequest {
+    - reason: ServiceReason
+    - status: ServiceRequestStatus
+    + assign(technician)
+    + complete()
+  }
+}
+
+package "Аренда" {
+  class Booking {
+    - createdAt: DateTime
+    - expiresAt: DateTime
+    - status: BookingStatus
+    + cancel()
+    + convertToRental()
+  }
+  class Rental {
+    - startedAt: DateTime
+    - finishedAt: DateTime
+    - status: RentalStatus
+    + start()
+    + finish()
+    + close()
+    + cancel()
+    + calculateCost(): Money
+  }
+  class Inspection {
+    - type: InspectionType
+    - performedAt: DateTime
+    - fuelLevelPercent: Integer
+    - damages: String
+    - photos: Photo [0..*]
+  }
+  class Tariff {
+    - name: String
+    - driveRate: Money
+    - waitRate: Money
+    - dayRate: Money
+  }
+  class Photo <<value object>> {
+    - takenAt: DateTime
+    - description: String
+  }
+}
+
+package "Расчёты" {
+  class Payment {
+    - amount: Money
+    - type: PaymentType
+    - status: PaymentStatus
+    + execute()
+    + release()
+  }
+  class Charge {
+    - type: ChargeType
+    - amount: Money
+    - reason: String
+    - evidence: Photo [0..*]
+    - status: ChargeStatus
+    + contest()
+    + cancel()
+  }
+  class Money <<value object>> {
+    - amount: Decimal
+    - currency: String
+  }
+}
+
+package "Инциденты и поддержка" {
+  class Incident {
+    - type: IncidentType
+    - occurredAt: DateTime
+    - clientAtFault: Boolean
+    - status: IncidentStatus
+    + registerEvidence()
+    + calculateClientShare(): Money
+    + close()
+  }
+  class SupportRequest {
+    - topic: SupportTopic
+    - text: String
+    - status: SupportRequestStatus
+    + resolve(decision)
+  }
+}
+
+package "Сотрудники" {
+  abstract class Employee {
+    - fullName: String
+    - isActive: Boolean
+  }
+  class Manager {
+    + verifyDocuments()
+    + decideIncident()
+    + issueCharge()
+    + resolveSupportRequest()
+  }
+  class Technician {
+    + performService()
+    + inspectAfterRental()
+  }
+  class Administrator {
+    + manageFleet()
+    + setTariff()
+    + manageEmployees()
+  }
+}
+
+Customer "1" *-- "1" Passport : имеет
+Customer "1" *-- "1" DrivingLicense : имеет
+Customer "1" -- "0..*" Contract : принимает
+Customer "1" -- "0..*" Booking : создаёт
+Customer "1" -- "0..*" SupportRequest : подаёт
+
+ServiceZone "1" o-- "0..*" Vehicle : включает
+Vehicle "1" -- "0..*" ServiceRequest : требует
+
+Booking "0..*" -- "1" Vehicle : резервирует
+Booking "0..*" -- "1" Tariff : выбирает
+Booking "1" -- "0..1" Rental : становится
+Rental "0..*" -- "1" Vehicle : использует
+Rental "1" *-- "1..2" Inspection : включает
+
+Rental "1" -- "0..*" Payment : оплачивается
+Rental "1" -- "0..*" Charge : порождает
+Rental "1" -- "0..*" Incident : связана с
+
+Manager --|> Employee
+Technician --|> Employee
+Administrator --|> Employee
+Technician "0..1" -- "0..*" ServiceRequest : выполняет
+Manager "0..1" -- "0..*" SupportRequest : рассматривает
+Manager "0..1" -- "0..*" Incident : обрабатывает
+SupportRequest "0..*" -- "0..1" Charge : оспаривает
+
+note bottom of Customer
+  {возраст ≥ 21 года; стаж ≥ 2 лет}
+  {не более одной активной брони или аренды}
+end note
+note top of Booking : {expiresAt = createdAt + 15 минут}
+note right of Vehicle : {на автомобиль не более одной\nактивной брони или аренды}
+note bottom of Payment : {блокировка на время аренды = 5 000 ₽}
+note bottom of Charge : {основание и доказательства обязательны}
+
+legend bottom
+  <b>Обозначения:</b> сплошная линия — ассоциация; закрашенный ромб — композиция;
+  пустой ромб — агрегация; пустой треугольник — обобщение; {...} — бизнес-ограничение.
+endlegend
+
+footer Задание №6 • Диаграмма классов • концептуальная доменная модель
+@enduml
