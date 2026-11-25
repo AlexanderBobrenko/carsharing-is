@@ -48,6 +48,8 @@
 
 Границы пакетов — это не техническое деление (фронтенд / бэкенд / база), а деление по бизнес-смыслу: внутри пакета сущности меняются вместе, между пакетами проходят только явные связи. Это заготовка для верхнеуровневого проектирования: пакет можно превращать в компонент, не разрывая композиции и жизненный цикл сущностей.
 
+`Money` и `Photo` — общие объекты-значения: `Money` нужен тарифам, платежам и начислениям, `Photo` — осмотрам и доказательствам начислений. На диаграмме они лежат в группе основного использования, а не в отдельном «общем» пакете, чтобы не плодить лишнюю границу.
+
 ## Проектные решения
 
 - **Статусы вынесены в отдельные типы** (`status: BookingStatus`, а не `String`). Допустимые значения и переходы — в [диаграммах состояний](../07-state-diagrams/state-diagrams.md).
@@ -114,9 +116,15 @@
 | Incident | `close()` | Рассматривается → Закрыт |
 | ServiceRequest | `assign()` / `complete()` | Создана → Принята → Выполнена, БП-31 |
 | SupportRequest | `resolve(decision)` | БП-25 |
-| Manager | `verifyDocuments()`, `decideIncident()`, `issueCharge()`, `resolveSupportRequest()` | UC-02, UC-09, UC-10, UC-11 |
-| Technician | `performService()`, `inspectAfterRental()` | UC-13/14, UC-15 |
-| Administrator | `manageFleet()`, `setTariff()`, `manageEmployees()` | UC-16, UC-17, UC-18 |
+| Manager | `verifyDocuments()` | БП-04, ручная проверка документов |
+| Manager | `decideIncident()` | БП-26…БП-28, решение по инциденту |
+| Manager | `issueCharge()` | БП-21…БП-24, начисление с основанием и доказательствами |
+| Manager | `resolveSupportRequest()` | БП-25, разбор обращения и спора |
+| Technician | `performService()` | БП-30, БП-31, выполнение заявки |
+| Technician | `inspectAfterRental()` | БП-12, БП-32, осмотр после аренды |
+| Administrator | `manageFleet()` | БП-29, БП-30, статусы автомобилей |
+| Administrator | `setTariff()` | БП-15…БП-18, ставки тарифа |
+| Administrator | `manageEmployees()` | БП-33, доступ сотрудников |
 
 ## Проверка диаграммы
 
