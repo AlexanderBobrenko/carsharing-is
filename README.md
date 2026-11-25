@@ -63,7 +63,7 @@ Vision & Scope задаёт цели (BG) → диаграмма прецеде�
 |---|---|---|
 | Прецеденты | `python3 gen_usecase.py` | `pip install matplotlib` |
 | Деятельность | `python3 ad_registration.py`, `ad_rental.py`, `ad_incident.py` | `pip install matplotlib` |
-| Классы | `python3 gen_classes.py` | Graphviz (`dot`) |
+| Классы | `java -jar ~/plantuml.jar -tpng class-diagram.puml` | PlantUML, Java |
 | Состояния | `python3 gen_states.py` | Graphviz (`dot`) |
 
 Результат появляется в папке `src/`, его нужно переместить на уровень выше. Для шрифта используется Liberation Sans (при его отсутствии подставится DejaVu Sans).
